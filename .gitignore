@@ -1,2 +1,5 @@
-bin/ 
-obj/ 
+in/
+obj/
+.idea/
+*.user
+bin/
