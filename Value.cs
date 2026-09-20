@@ -69,6 +69,19 @@ namespace BackPropagation
             return val;
 
         }
+        
+        public Value Divide(Value other, string label)
+        {
+            var outVal = new Value(this.Data / other.Data, label);
+            outVal.Children.Add(this);
+            outVal.Children.Add(other);
+            outVal.Backward = () =>
+            {
+                this.Grad += (1.0 / other.Data) * outVal.Grad;
+                other.Grad += (-this.Data / (other.Data * other.Data)) * outVal.Grad;
+            };
+            return outVal;
+        }
 
         public Value Substract(Value other, string label)
         {
@@ -134,8 +147,6 @@ namespace BackPropagation
             }
 
             BuildTopo(this);
-
-            this.Grad = 1.0;
 
             for (int i = topo.Count - 1; i >= 0; i--)
             {
