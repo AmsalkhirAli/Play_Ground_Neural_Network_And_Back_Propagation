@@ -16,10 +16,8 @@ namespace BackPropagation
             mlp.Layers.Add(new Layer(8, false)); // hidden 2
             mlp.Layers.Add(new Layer(6, isOutputLayer: true)); // output
 
-            mlp.InitialiseNeuralNetwork(); // ← was missing
-
-            // toy dataset — replace with real data; here output target = input,
-            // just to have something to verify convergence against
+            mlp.InitialiseNeuralNetwork(); 
+            
             var trainingData = new List<(List<double> Inputs, List<double> Targets)>
             {
                 (new List<double> { 0.2, -0.1, 0.5, 0.3, -0.4, 0.1 },
@@ -32,7 +30,7 @@ namespace BackPropagation
                     new List<double> { -0.1, -0.6, 0.4, 0.4, -0.3, 0.6 }),
             };
 
-            var parameters = GetParameters(mlp); // all weights + biases, every layer
+            var parameters = GetParameters(mlp); 
             double learningRate = 0.09;
             int epochs = 800;
 
