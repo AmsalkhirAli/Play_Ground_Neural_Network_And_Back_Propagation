@@ -14,7 +14,7 @@ public class MLP
         Layers.Add(Layer);
     }
 
-    public void InitialiseNeuralNetwork()
+    public void InitialiseNeuralNetwork(int features)
     {
         for (int i = 0; i < Layers.Count; i++)
         {
@@ -22,14 +22,15 @@ public class MLP
             {
                 foreach (var neuron in Layers[i].Neurons)
                 {
-                    neuron.InitialiseWeights(1);
+                    neuron.InitialiseWeights(features);
                 }
             }
             else
             {
                 foreach (var neuron in Layers[i].Neurons)
                 {
-                     neuron.InitialiseWeights(Layers[i - 1].NeuronsCount);
+                    var isHiddenlayer = i != Layers.Count - 1;
+                    neuron.InitialiseWeights(Layers[i - 1].NeuronsCount,isHiddenlayer);
                 }
             }
         }
@@ -46,7 +47,8 @@ public class MLP
             {
                 for (int i = 0; i < Layers[j].NeuronsCount; i++)
                 {
-                    Layers[j].Neurons[i].Forward(dataFromLayer);
+                    var isHiddenlayer = j!=0 && j!=Layers.Count-1;
+                    Layers[j].Neurons[i].Forward(dataFromLayer,isHiddenlayer);
                 }
             }
             
@@ -54,7 +56,7 @@ public class MLP
             {
                 for (int i = 0; i < Layers[j].NeuronsCount; i++)
                 {
-                    Layers[j].Neurons[i].Forward(new List<Value> { values[i] });
+                    Layers[j].Neurons[i].Forward(values);
                 }
                 
             }
@@ -64,47 +66,6 @@ public class MLP
         }
         
         
-    }
-
-    public void CalculateLoss(double expectedOutput)
-    {
-        
-        Value ExpectedOutPut = new Value(expectedOutput,"L");
-        
-        Value AmountOfValuesForDivide = new Value(Layers.Where(o => o.IsOutputLayer)
-            .First().NeuronsCount, "D");
-        
-        var OutputData = new List<Value>();
-        
-        Layers.Where(o => o.IsOutputLayer)
-            .First()
-            .Neurons
-            .Select(n => n.Output)
-            .ToList()
-            .ForEach(o => OutputData.Add(o));
-
-
-
-        Value FirstNeuronOutput = Layers.Where(o => o.IsOutputLayer)
-            .First().Neurons[0].Output;
-
-        Value total = null;
-        foreach (var val in OutputData)
-        {
-            total = total == null ? val : total.Add(val, "");
-        }
-
-        total = total.Divide(AmountOfValuesForDivide,"");
-
-        total = total.LossCalc(ExpectedOutPut, "L");
-        Loss = total;
-        
-        
-    }
-
-    public void RunBackward()
-    {
-        Loss.RunBackward();
     }
 
 }
