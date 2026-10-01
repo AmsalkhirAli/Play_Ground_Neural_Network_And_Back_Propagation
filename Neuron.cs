@@ -21,22 +21,35 @@ namespace BackPropagation
             Bias = new Value(Rand.NextDouble(),"Bias");
         }
 
-        public void InitialiseWeights(int numberOfInputs)
+        public void InitialiseWeights(int numberOfInputs,bool isHiddenLayer = false)
         {
-            InitialiseWeightsForInputs(numberOfInputs);
+            InitialiseWeightsForInputs(numberOfInputs,isHiddenLayer);
         }
 
-        private void InitialiseWeightsForInputs(int numberOfInputs)
+        private void InitialiseWeightsForInputs(int numberOfInputs,bool isHiddenLayer=false)
         {
-            for(int i=1; i<=numberOfInputs;i++)
-            {
-                var weight = new Value(Rand.NextDouble(), $"w{i}");
-                Weights.Add(weight);
+            double limit= 0.0;
 
+            if (isHiddenLayer)
+            {
+                limit = Math.Sqrt(6.0 / numberOfInputs);
+            }
+            else
+            {
+                limit = 1.0 / Math.Sqrt(numberOfInputs);
+            }
+           
+
+
+            for (int i=1; i<=numberOfInputs;i++)
+            {
+                double randomValue = (Rand.NextDouble() * 2 - 1) * limit; // range: [-limit, limit)
+                var weight = new Value(randomValue, $"w{i}");
+                Weights.Add(weight);
             }
         }
         
-        public Value Forward(List<Value> data)
+        public Value Forward(List<Value> data,bool isHiddenlayer=false)
         {
 
             List<Value> ForwardList = new List<Value>();
@@ -55,7 +68,14 @@ namespace BackPropagation
             }
 
             v =  v.Add(Bias,"");
-            v = v.tanh("");
+            if (isHiddenlayer)
+            {
+                v = v.Relu("");
+            }
+            else
+            {
+                v = v.tanh("");
+            }
             Output = v;
             return Output;
 

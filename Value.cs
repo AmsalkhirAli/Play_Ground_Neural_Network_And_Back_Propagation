@@ -97,6 +97,18 @@ namespace BackPropagation
             return val;
         }
 
+        public Value Relu(string label)
+        {
+            Value val = new Value(Math.Max(0, this.Data),label,"RELU");
+            val.Children.Add(this);
+
+            val.Backward = () =>
+            {
+                this.Grad += (1.0 * val.Grad);
+            };
+            return val;
+        }
+
         public Value tanh(string label)
         {
             Value val = new Value((Math.Exp(2 * this.Data) - 1) / (Math.Exp(2 * this.Data) + 1), label, "tanh");
