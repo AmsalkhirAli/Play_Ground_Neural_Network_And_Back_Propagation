@@ -1,19 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks.Dataflow;
 namespace BackPropagation;
 
 public class MLP
 {
     public List<Layer> Layers { get; set; } = new List<Layer>();
     public Value Loss;
-
-    public void CreateLayers(int neuronsCount, bool isInputLayer, bool isOutputLayer)
-    {
-        Layer Layer = new Layer(neuronsCount, isInputLayer, isOutputLayer);
-        Layers.Add(Layer);
-    }
 
     public void InitialiseNeuralNetwork(int features)
     {
@@ -93,22 +86,19 @@ public class MLP
                 }
 
                 foreach (var p in parameters)
+                {
                     p.AdjustWeight(learningRate);
-
-                Loss.ResetGradients();
-
+                    p.Grad = 0.0;
+                }
+                
                 epochLoss += BatchLoss;
-
             }
-            epochLoss = Loss.Data;
+            
             if (epoch % 10 == 0 || epoch == epochs - 1)
                 Console.WriteLine($"epoch {epoch,4}: avg loss = {epochLoss / trainingData.Count:F5}");
 
         }
-
-        
     }
-
 
 
     List<Value> GetParameters()
@@ -148,9 +138,7 @@ public class MLP
                 }
 
             }
-
             dataFromLayer = Layers[j].Neurons.Select(o => o.Output).ToList();
-
         }
 
 
