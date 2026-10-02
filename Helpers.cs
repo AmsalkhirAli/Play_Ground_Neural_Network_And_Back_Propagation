@@ -39,5 +39,22 @@ namespace BackPropagation
             return outputData;
         }
 
+        public static void NumericalGradCheck(Value weight, Action rebuildForwardPass, (List<double>,List<double>) sample, MLP mlp, double h = 1e-5)
+        {
+            // original gradient after 1 backwards run
+            Console.WriteLine($"original gradient:{weight.Grad}");
+            var OriginalWeight = weight.Data;
+            weight.Data += h;
+            rebuildForwardPass();
+            var lossPlus = mlp.ComputeLoss(sample.Item2);
+            weight.Data -= 2 * h;
+            rebuildForwardPass();
+            var lossMinus = mlp.ComputeLoss(sample.Item2);
+            var numericalGrad = (lossPlus.Data - lossMinus.Data) / (2 * h);
+            weight.Data = OriginalWeight;
+
+            Console.WriteLine($"NumericalGrad = {numericalGrad}  ::  BackPropGrad = {weight.Grad}");
+        }
+
     }
 }

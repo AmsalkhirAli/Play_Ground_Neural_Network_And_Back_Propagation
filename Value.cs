@@ -8,6 +8,12 @@ namespace BackPropagation
 {
     public class Value
     {
+        public const double Beta1 = 0.9;
+        public const double Beta2 = 0.999;
+        const double Epsilon = 1e-8;
+        public double M { get; set; } = 0.0;
+        public double V { get; set; } = 0.0;
+        public int AdamOptimzerCounts { get; set; } = 1;
         public double Data { get; set; }
         public double Grad { get; set; } = 0.0;
         public string Operator { get; set; }
@@ -15,6 +21,17 @@ namespace BackPropagation
         public string Label { get; set; }
 
         public Action Backward;
+
+        public void AdamUpdateParameter(double learningRate)
+        {
+            M = Beta1 * M + (1 - Beta1) * Grad;
+            V = Beta2 * V + (1 - Beta2) * (Grad * Grad);
+
+            double mHat = M / (1 - Math.Pow(Beta1, AdamOptimzerCounts));
+            double vHat = V / (1 - Math.Pow(Beta2, AdamOptimzerCounts));
+
+            Data -= learningRate * (mHat / (Math.Sqrt(vHat) + Epsilon));
+        }
 
 
         public Value(double data, string label, string operation = "")
@@ -33,7 +50,8 @@ namespace BackPropagation
                 { ChildrenString = ChildrenString + ','; }
                 ChildrenString = ChildrenString + v.Label;
 
-            };
+            }
+            ;
             ChildrenString = ChildrenString + "]";
 
             return $"{{data: {this.Data.ToString()}, operation: {this.Operator}, Label: {this.Label}, Grad: {this.Grad} Children: {ChildrenString}}}";
@@ -69,7 +87,7 @@ namespace BackPropagation
             return val;
 
         }
-        
+
         public Value Divide(Value other, string label)
         {
             var outVal = new Value(this.Data / other.Data, label);
@@ -99,12 +117,13 @@ namespace BackPropagation
 
         public Value Relu(string label)
         {
-            Value val = new Value(Math.Max(0, this.Data),label,"RELU");
+            Value val = new Value(Math.Max(0, this.Data), label, "RELU");
             val.Children.Add(this);
 
             val.Backward = () =>
             {
-                this.Grad += (1.0 * val.Grad);
+                if (this.Data > 0)
+                    this.Grad += (1.0 * val.Grad);
             };
             return val;
         }
@@ -140,7 +159,7 @@ namespace BackPropagation
 
         public void AdjustWeight(double learningRate)
         {
-            Data = Data - learningRate * Grad;
+            AdamUpdateParameter(learningRate);
         }
 
         public void ResetGradients()
