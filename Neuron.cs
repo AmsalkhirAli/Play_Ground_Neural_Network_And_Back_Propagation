@@ -17,7 +17,7 @@ namespace BackPropagation
         {
             _random= new Random();
             Weights = new List<Value>();
-            Bias = new Value(_random.NextDouble(),"Bias");
+            Bias = new Value(0,"Bias");
         }
 
         public void InitialiseWeights(int numberOfInputs,bool isHiddenLayer = false)
