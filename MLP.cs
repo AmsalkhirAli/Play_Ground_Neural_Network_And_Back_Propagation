@@ -92,8 +92,10 @@ public class MLP
                     }
                 }
 
+                double currentLr = learningRate * Math.Pow(0.9, epoch / 50);
+
                 foreach (var p in parameters)
-                    p.AdjustWeight(learningRate);
+                    p.AdjustWeight(currentLr);
 
                 Loss.ResetGradients();
 
