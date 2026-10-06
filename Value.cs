@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BackPropagation
 {
@@ -160,29 +158,6 @@ namespace BackPropagation
         public void AdjustWeight(double learningRate)
         {
             AdamUpdateParameter(learningRate);
-        }
-
-        public void ResetGradients()
-        {
-            var topo = new List<Value>();
-            var visited = new HashSet<Value>();
-
-            void BuildTopo(Value v)
-            {
-                if (visited.Add(v))
-                {
-                    foreach (var child in v.Children)
-                        BuildTopo(child);
-                    topo.Add(v);
-                }
-            }
-
-            BuildTopo(this);
-
-            for (int i = topo.Count - 1; i >= 0; i--)
-            {
-                topo[i].Grad = 0.0;
-            }
         }
 
         public void RunBackward()

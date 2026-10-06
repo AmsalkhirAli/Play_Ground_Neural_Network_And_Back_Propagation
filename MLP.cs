@@ -1,19 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks.Dataflow;
 namespace BackPropagation;
 
 public class MLP
 {
     public List<Layer> Layers { get; set; } = new List<Layer>();
     public Value Loss;
-
-    public void CreateLayers(int neuronsCount, bool isInputLayer, bool isOutputLayer)
-    {
-        Layer Layer = new Layer(neuronsCount, isInputLayer, isOutputLayer);
-        Layers.Add(Layer);
-    }
 
     public void InitialiseNeuralNetwork(int features)
     {
@@ -56,6 +49,8 @@ public class MLP
 
     public void TrainMlp(Dictionary<List<double>, List<double>> trainingData, int epochs, double learningRate, int batchsize)
     {
+        Console.WriteLine($"targets: min={trainingData.Values.SelectMany(v => v).Min():F3} " +
+                          $"max={trainingData.Values.SelectMany(v => v).Max():F3}");
         bool didGradCheckThisEpoch = false;
         var parameters = GetParameters();
 
@@ -76,13 +71,13 @@ public class MLP
 
             foreach (var batch in batches)
             {
-                double BatchLoss = 0.0;
+                double _batchLoss = 0.0;
                 foreach (var sample in batch)
                 {
                     var inputs = sample.Item1.Select((d, i) => new Value(d, $"in{i}")).ToList();
                     RunForward(inputs);
                     Loss = ComputeLoss(sample.Item2);
-                    BatchLoss +=Loss.Data;
+                    _batchLoss +=Loss.Data;
                     Loss.RunBackward();
 
                     if (epoch == 500 && !didGradCheckThisEpoch)
@@ -95,22 +90,19 @@ public class MLP
                 double currentLr = learningRate * Math.Pow(0.9, epoch / 50);
 
                 foreach (var p in parameters)
+                {
                     p.AdjustWeight(currentLr);
-
-                Loss.ResetGradients();
-
-                epochLoss += BatchLoss;
-
+                    p.Grad = 0.0;
+                }
+                
+                epochLoss += _batchLoss;
             }
-            epochLoss = Loss.Data;
+            
             if (epoch % 10 == 0 || epoch == epochs - 1)
                 Console.WriteLine($"epoch {epoch,4}: avg loss = {epochLoss / trainingData.Count:F5}");
 
         }
-
-        
     }
-
 
 
     List<Value> GetParameters()
@@ -150,9 +142,7 @@ public class MLP
                 }
 
             }
-
             dataFromLayer = Layers[j].Neurons.Select(o => o.Output).ToList();
-
         }
 
 

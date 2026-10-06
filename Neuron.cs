@@ -11,14 +11,13 @@ namespace BackPropagation
         public List<Value>Weights { get; set; }
         public Value Output { get; set; }
         public Value Bias { get; set; }
-        private Random Rand;
-        public int NumberOfInputs { get; set; }
+        private readonly Random _random;
 
         public Neuron()
         {
-            Rand = new Random();
+            _random= new Random();
             Weights = new List<Value>();
-            Bias = new Value(Rand.NextDouble(),"Bias");
+            Bias = new Value(0,"Bias");
         }
 
         public void InitialiseWeights(int numberOfInputs,bool isHiddenLayer = false)
@@ -38,18 +37,16 @@ namespace BackPropagation
             {
                 limit = 1.0 / Math.Sqrt(numberOfInputs);
             }
-           
-
 
             for (int i=1; i<=numberOfInputs;i++)
             {
-                double randomValue = (Rand.NextDouble() * 2 - 1) * limit; // range: [-limit, limit)
+                double randomValue = (_random.NextDouble() * 2 - 1) * limit; // range: [-limit, limit)
                 var weight = new Value(randomValue, $"w{i}");
                 Weights.Add(weight);
             }
         }
         
-        public Value Forward(List<Value> data,bool isHiddenlayer=false)
+        public void Forward(List<Value> data,bool isHiddenlayer=false)
         {
 
             List<Value> ForwardList = new List<Value>();
@@ -77,8 +74,6 @@ namespace BackPropagation
                 v = v.tanh("");
             }
             Output = v;
-            return Output;
-
         }
 
     }
